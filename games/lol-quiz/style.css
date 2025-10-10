@@ -1,0 +1,119 @@
+/* === Container principal do jogo === */
+#game-container {
+    font-family: 'Cinzel', 'Garamond', serif; /* fonte clássica e elegante */
+    color: #f5e6b3; /* dourado claro */
+    background-color: #0f1118; /* fundo escuro, estilo LoL */
+    border: 3px solid #a68f55; /* borda dourada */
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 700px;
+    margin: 20px auto;
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+}
+
+/* === Botões principais do menu === */
+#menu button,
+#gamemode button,
+#game button {
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    color: #f5e6b3;
+    background-color: #1f2230; /* tom de botão escuro */
+    border: 2px solid #a68f55;
+    border-radius: 8px;
+    padding: 10px 25px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#menu button:hover,
+#gamemode button:hover,
+#game button:hover {
+    background-color: #2a2d41;
+    border-color: #f5e6b3;
+    color: #ffd966;
+}
+
+/* === Títulos === */
+h2, h3 {
+    color: #ffd966; /* dourado brilhante */
+    text-align: center;
+    text-shadow: 1px 1px 3px #000000;
+}
+
+/* === Pistas e dicas === */
+#game p {
+    font-size: 1.1em;
+    line-height: 1.4em;
+    text-align: center;
+    margin: 15px 0;
+}
+
+/* === Input do jogador === */
+#game input[type="text"]#answer {
+    width: 70%;
+    padding: 8px 10px;
+    border: 2px solid #a68f55;
+    border-radius: 6px;
+    background-color: #1f2230;
+    color: #f5e6b3;
+    font-family: 'Cinzel', serif;
+    font-size: 1em;
+    text-align: center;
+}
+
+#game input[type="text"]#answer:focus {
+    outline: none;
+    border-color: #ffd966;
+    box-shadow: 0 0 5px #ffd966;
+}
+
+/* === Feedback (acerto/erro) === */
+#feedback {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 10px;
+}
+
+/* Acerto */
+#feedback.correct {
+    color: #66ff66; /* verde */
+}
+
+/* Erro */
+#feedback.wrong {
+    color: #ff6666; /* vermelho */
+}
+
+/* === Estilo do menu de instruções === */
+#menu p {
+    background-color: #1a1c28;
+    border: 2px solid #a68f55;
+    border-radius: 8px;
+    padding: 15px;
+    line-height: 1.5em;
+    text-align: justify;
+    text-shadow: 0 0 2px #000;
+}
+
+/* === Pequenos efeitos visuais === */
+#game-container {
+    transition: all 0.3s ease-in-out;
+}
+
+#menu button, #gamemode button {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* === Responsivo para mobile === */
+@media screen and (max-width: 768px) {
+    #game-container {
+        padding: 15px;
+    }
+
+    #game input[type="text"]#answer {
+        width: 90%;
+    }
+}
