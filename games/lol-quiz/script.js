@@ -1,3 +1,8 @@
+const link = document.createElement("link");
+link.rel = "stylesheet";
+link.href = "style.css"; // caminho do seu arquivo CSS
+document.head.appendChild(link);
+
 // === Dependência obrigatória (adicione isso no HTML) ===
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
@@ -42,8 +47,12 @@ function startGame(gamemode) {
         const champions = JSON.parse(jsonText);
         console.log("✅ Dados carregados:", champions);
 
+        // 🔀 Embaralha a lista
+        shuffleArray(champions);
+
         // 4️⃣ Muda para a tela do jogo e inicia
         changeScreen('game');
+        
         initGame(gamemode, champions);
 
       } catch (err) {
@@ -55,6 +64,13 @@ function startGame(gamemode) {
       console.error("❌ Erro ao baixar dados:", err);
       alert("Erro ao baixar o arquivo de dados.");
     });
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
 // === Inicialização do jogo ===
@@ -85,7 +101,7 @@ function loadNextChampion() {
   switch (mode) {
     case 'ultimate': hint = champion.ultimate; break;
     case 'passive': hint = champion.passiva; break;
-    case 'title': hint = champion.título || champion.titulo; break;
+    case 'title': hint = champion.titulo; break;
     default: hint = champion.nome;
   }
 
