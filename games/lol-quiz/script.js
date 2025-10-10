@@ -1,6 +1,6 @@
 const link = document.createElement("link");
 link.rel = "stylesheet";
-link.href = "https://raw.githubusercontent.com/CristianVeggian/blog-assets/refs/heads/main/games/lol-quiz/style.css";
+link.href = "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets/games/lol-quiz/style.css";
 document.head.appendChild(link);
 
 const fontLink = document.createElement("link");
@@ -241,4 +241,5 @@ function showRecords() {
 
     changeScreen('records');
 }
+
 
