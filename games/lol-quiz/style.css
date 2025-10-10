@@ -57,7 +57,7 @@ h2, h3 {
 }
 
 /* === Input do jogador (estilo global) === */
-input[type="text"] {
+#game-content input[type="text"] {
   width: 50%;
   padding: 10px 14px;
   border: 2px solid #a1853f;
@@ -71,12 +71,12 @@ input[type="text"] {
   text-align: center;
 }
 
-input[type="text"]::placeholder {
+#game-content input[type="text"]::placeholder {
   color: #888;
   font-style: italic;
 }
 
-input[type="text"]:focus {
+#game-content input[type="text"]:focus {
   outline: none;
   border-color: #ffd966;
   box-shadow: 0 0 6px #ffd966;
@@ -115,7 +115,7 @@ input[type="text"]:focus {
     padding: 15px;
   }
 
-  input[type="text"] {
+  #game-content input[type="text"] {
     width: 90%;
   }
 }
@@ -165,4 +165,5 @@ input[type="text"]:focus {
   background-color: #2a2d41;
   border-color: #ffd966;
   color: #ffd966;
+
 }
