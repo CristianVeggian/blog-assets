@@ -1,19 +1,5 @@
-const link = document.createElement("link");
-link.rel = "stylesheet";
-link.href = "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets/games/lol-quiz/style.css";
-document.head.appendChild(link);
-
-const fontLink = document.createElement("link");
-fontLink.rel = "stylesheet";
-fontLink.href = "https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap";
-document.head.appendChild(fontLink);
-
 window.startTime = null;
 window.timerInterval = null;
-
-
-// === Dependência obrigatória (adicione isso no HTML) ===
-// <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 
 // === Controle de telas ===
 function changeScreen(screen) {
@@ -241,5 +227,3 @@ function showRecords() {
 
     changeScreen('records');
 }
-
-
