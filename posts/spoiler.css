@@ -1,12 +1,27 @@
-spoiler::before {
+.spoiler {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+  border-radius: 4px;
+  padding: 0 6px;
+  cursor: pointer;
+}
+
+.spoiler::before {
   content: "SPOILER";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8); /* faixa preta semi-transparente */
-  color: #ffeb3b;                 /* texto amarelo */
+  background: repeating-linear-gradient(
+    45deg,
+    #000 0,
+    #000 10px,
+    #ffeb3b 10px,
+    #ffeb3b 20px
+  );
+  color: #000;
   font-size: 0.7em;
   font-weight: bold;
   letter-spacing: 1px;
@@ -15,25 +30,16 @@ spoiler::before {
   align-items: center;
   border-radius: 4px;
   transition: opacity 0.3s ease;
+  z-index: 1;
 }
 
-/* Hover / clique: revela o texto */
-spoiler:hover::before,
-spoiler.revealed::before {
+.spoiler:hover::before,
+.spoiler.revealed::before {
   opacity: 0;
   pointer-events: none;
 }
 
-spoiler:hover,
-spoiler.revealed {
+.spoiler:hover,
+.spoiler.revealed {
   color: inherit;
-  background: none;
-  animation: none;
-}
-
-/* Animação de fundo preto/amarelo */
-@keyframes blackYellowPulse {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
