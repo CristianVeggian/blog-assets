@@ -87,6 +87,8 @@
     ["Meridia", "Mortos-Vivos"],
     ["Mortos-Vivos", "Draugr"],
     ["Mortos-Vivos", "Vampiro"],
+    ["Jarl", "Balgruuf"],
+    ["Whiterun", "Balgruuf"],
     ["Solitude", "Skyrim"],
     ["Solitude", "Legião Imperial"],
     ["Hearthfire", "Morthal"],
@@ -101,13 +103,14 @@
     ["Miraak", "Hermaeus Mora"],
     ["príncipe daédrico", "Hermaeus Mora"],
     ["Hermaeus Mora", "livros"],
-    ["livros", "Barenziah"],
+    ["livros", "Biografia de Barenziah"],
+    ["Biografia de Barenziah", "Barenziah"],
     ["Barenziah", "pedras de Barenziah"],
     ["pedras de Barenziah", "Guilda dos Ladrões"],
     ["Barenziah", "rainha"],
-    ["rainha", "Potema"]
+    ["rainha", "Potema"],
+    ["Potema", "Solitude"]
   ],
     "corPrincipal": "#4c5059",
     "somVitoria": "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/audio/skyrim_win_sound.mp3"
 }
-
