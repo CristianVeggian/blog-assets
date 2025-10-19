@@ -26,5 +26,5 @@
     ["itens", "Gume do Infinito"]
   ],
     "corPrincipal": "#C4A15B",
-    "somVitoria": "lol_win_sound.mp3"
+    "somVitoria": "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/audio/lol_win_sound.mp3"
 }

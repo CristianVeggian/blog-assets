@@ -108,5 +108,5 @@
     ["rainha", "Potema"]
   ],
     "corPrincipal": "#4c5059",
-    "somVitoria": "skyrim_win_sound.mp3"
+    "somVitoria": "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/audio/lol_win_sound.mp3"
 }
