@@ -1,16 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
-  <title>Jogo Interligado</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Árvore do Conhecimento - Skyrim</title>
 </head>
+
 <body>
-  <h1>Interligado</span></h1>
-  <div id="game">
-        <input type="text" id="wordInput" placeholder="Digite uma palavra"/>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <h1 id="tituloTema"></h1>
+  <h1 id="tituloTema"></h1>  
+<div id="game">
+    <input type="text" id="wordInput" placeholder="Digite uma palavra" />
+    <p id="correctGuesses">1/1</p>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <button id="fullscreen"><i class="fas fa-expand"></i></button>
   </div>
-  <script src="script.js"></script>
+  <div id="telaVitoria">
+    <h1>🏆 VITÓRIA!</h1>
+    <p id="tempoFinal"></p>
+    <audio id="somVitoria" preload="auto"></audio>
+  </div>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/games/knowledge-tree/style.css">
+  <script src="https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/games/knowledge-tree/script.js"></script>
+  <script>
+  const urlDoJogo = "https://cdn.jsdelivr.net/gh/CristianVeggian/blog-assets@main/games/knowledge-tree/data/knowledge_tree_skyrim.json";
+  window.onload = () => iniciarJogo(urlDoJogo);
+</script>
 </body>
+
 </html>
