@@ -4,96 +4,86 @@ const input = document.getElementById("wordInput");
 
 let theme = "";
 let grafoCompleto = [];
-let vizinhos = new Set(); // nós visíveis (como dica ou revelados)
-let revelados = new Set(); // nós já revelados
-let conexoesVisiveis = []; // arestas visíveis no grafo
+let vizinhos = new Set();
+let revelados = new Set();
+let conexoesVisiveis = [];
 
-fetch("lvl_skyrim.json")
-    .then(res => res.json())
-    .then(data => {
-        theme = data.theme;
-        grafoCompleto = data.graph;
+let arrastando = null;
+let offsetX = 0;
+let offsetY = 0;
 
-        revelados.add(theme);
+let d3Nodes = [];
+let d3Links = [];
+let simulation;
 
-        // Adiciona conexões diretas do tema
-        grafoCompleto.forEach(([a, b]) => {
-            if (a === theme || b === theme) {
-                const outro = a === theme ? b : a;
-                vizinhos.add(outro);
-                conexoesVisiveis.push([theme, outro]);
-            }
-        });
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
 
-        desenharGrafo();
-    })
-    .catch(err => console.error("Erro ao carregar grafo:", err));
+let inicioJogo = Date.now();
+
+function iniciarJogo(urlConfig) {
+
+    let inicioJogo = Date.now();
+
+    fetch(urlConfig)
+        .then(res => res.json())
+        .then(config => {
+            const { theme, graph, corPrincipal, somVitoria } = config;
+
+            // ✅ Agora está dentro do escopo certo
+            document.body.style.setProperty('--cor-principal', corPrincipal);
+            document.getElementById("somVitoria").src = somVitoria;
+            document.getElementById("tituloTema").textContent = `Arvore do Conhecimento - ${theme}`;
+
+            revelados = new Set();
+            vizinhos = new Set();
+            conexoesVisiveis = [];
+
+            grafoCompleto = graph;
+
+            revelados.add(theme);
+            grafoCompleto.forEach(([a, b]) => {
+                if (a === theme || b === theme) {
+                    const outro = a === theme ? b : a;
+                    vizinhos.add(outro);
+                    conexoesVisiveis.push([theme, outro]);
+                }
+            });
+
+            ajustarCanvas();
+            atualizarSimulacao();
+            atualizarContador();
+
+        })
+        .catch(err => console.error("Erro ao carregar config:", err));
+}
+
 
 function desenharGrafo() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#000"; // fundo preto
+    ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    const margem = 50;
+
+    d3Nodes.forEach(n => {
+        n.x = Math.max(margem, Math.min(canvas.width - margem, n.x));
+        n.y = Math.max(margem, Math.min(canvas.height - margem, n.y));
+    });
+
+
+    d3Nodes.forEach(n => {
+        if (n.id === theme) {
+            n.fx = canvas.width / 2;
+            n.fy = canvas.height / 2;
+        }
+    });
+
     const posicoes = {};
-    const centroX = canvas.width / 2;
-    const centroY = canvas.height / 2;
-    posicoes[theme] = { x: centroX, y: centroY };
-
-    // Mapeia cada nó revelador para seus filhos
-    const filhosPorPai = {};
-    conexoesVisiveis.forEach(([a, b]) => {
-        if (!filhosPorPai[a]) filhosPorPai[a] = [];
-        filhosPorPai[a].push(b);
+    d3Nodes.forEach(n => {
+        posicoes[n.id] = { x: n.x, y: n.y };
     });
 
-    const ocupados = new Set(); // para evitar sobreposição
-
-    Object.keys(filhosPorPai).forEach(pai => {
-        const filhos = filhosPorPai[pai];
-        const origem = posicoes[pai];
-        if (!origem) return;
-
-        const raioBase = 150 + filhos.length * 10; // aumenta o raio conforme o número de filhos
-        const anguloBase = (2 * Math.PI) / filhos.length;
-
-        filhos.forEach((filho, i) => {
-            if (posicoes[filho]) return;
-
-            let angulo = anguloBase * i;
-            let tentativa = 0;
-            let x, y;
-
-            do {
-                const raio = raioBase + tentativa * 20;
-                x = origem.x + raio * Math.cos(angulo);
-                y = origem.y + raio * Math.sin(angulo);
-                tentativa++;
-            } while (colide(x, y, ocupados) && tentativa < 10);
-
-            posicoes[filho] = { x, y };
-            ocupados.add(`${Math.round(x)}-${Math.round(y)}`);
-        });
-    });
-
-
-    // Distribui os filhos em torno de seus pais
-    Object.keys(filhosPorPai).forEach(pai => {
-        const filhos = filhosPorPai[pai];
-        const origem = posicoes[pai];
-        if (!origem) return; // ignora se pai ainda não tem posição
-
-        const anguloBase = (2 * Math.PI) / filhos.length;
-        const raio = 120;
-
-        filhos.forEach((filho, i) => {
-            if (posicoes[filho]) return; // já posicionado
-            const x = origem.x + raio * Math.cos(anguloBase * i);
-            const y = origem.y + raio * Math.sin(anguloBase * i);
-            posicoes[filho] = { x, y };
-        });
-    });
-
-    // Desenha conexões
     conexoesVisiveis.forEach(([a, b]) => {
         const p1 = posicoes[a];
         const p2 = posicoes[b];
@@ -105,7 +95,6 @@ function desenharGrafo() {
         ctx.stroke();
     });
 
-    // Desenha nós como retângulos com brilho
     Object.keys(posicoes).forEach(nó => {
         const { x, y } = posicoes[nó];
         const texto = revelados.has(nó) ? nó : gerarDica(nó);
@@ -113,13 +102,15 @@ function desenharGrafo() {
         const largura = ctx.measureText(texto).width + 20;
         const altura = 30;
 
-        // Gradiente com brilho suave
+        const corPrincipal = getComputedStyle(document.body).getPropertyValue('--cor-principal').trim();
+
         const grad = ctx.createLinearGradient(x - largura / 2, y, x + largura / 2, y);
         if (revelados.has(nó)) {
-            grad.addColorStop(0, "#005fa3");
-            grad.addColorStop(0.5, "#0077cc");
-            grad.addColorStop(1, "#005fa3");
-        } else {
+            grad.addColorStop(0, ajustarCor(corPrincipal, -30)); // tom mais escuro
+            grad.addColorStop(0.5, corPrincipal);                // cor original
+            grad.addColorStop(1, ajustarCor(corPrincipal, 30));  // tom mais claro
+        }
+        else {
             grad.addColorStop(0, "#2a2a2a");
             grad.addColorStop(0.5, "#444");
             grad.addColorStop(1, "#2a2a2a");
@@ -128,46 +119,205 @@ function desenharGrafo() {
         ctx.fillStyle = grad;
         ctx.fillRect(x - largura / 2, y - altura / 2, largura, altura);
 
-        ctx.strokeStyle = revelados.has(nó) ? "#3399ff" : "#555";
+        ctx.strokeStyle = revelados.has(nó) ? corPrincipal : "#555";
         ctx.strokeRect(x - largura / 2, y - altura / 2, largura, altura);
 
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = revelados.has(nó) ? corTextoContraste(corPrincipal) : "#fff";
+
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(texto, x, y);
     });
 }
 
-function colide(x, y, ocupados) {
-    const chave = `${Math.round(x)}-${Math.round(y)}`;
-    return ocupados.has(chave);
-}
-
-function gerarDica(palavra) {
-    const primeira = palavra[0];
-    const tamanho = palavra.length;
-    const oculto = "*".repeat(tamanho - 2) + palavra[tamanho - 1];
-    return `${primeira}${oculto}(${tamanho})`;
+function gerarDica(objetivo) {
+    const palavras = objetivo.split(" ");
+    let objetivoPartes = ''
+    palavras.forEach((palavra) => {
+        const primeira = palavra[0];
+        const tamanho = palavra.length;
+        const oculto = "*".repeat(tamanho - 2) + palavra[tamanho - 1];
+        objetivoPartes += `${primeira}${oculto}(${tamanho}) `;
+    });
+    return objetivoPartes.trim();
 }
 
 input.addEventListener("input", () => {
-    const tentativa = input.value.trim();
-    if (vizinhos.has(tentativa) && !revelados.has(tentativa)) {
-        revelados.add(tentativa);
-        vizinhos.delete(tentativa);
+    const tentativa = normalizar(input.value.trim());
 
-        // Adiciona novas conexões a partir da palavra descoberta
+    const vizinhoEncontrado = Array.from(vizinhos).find(v => normalizar(v) === tentativa);
+
+    if (vizinhoEncontrado && !revelados.has(vizinhoEncontrado)) {
+        revelados.add(vizinhoEncontrado);
+        vizinhos.delete(vizinhoEncontrado);
+
         grafoCompleto.forEach(([a, b]) => {
-            if (a === tentativa && !revelados.has(b)) {
+            if (a === vizinhoEncontrado && !revelados.has(b)) {
                 vizinhos.add(b);
                 conexoesVisiveis.push([a, b]);
-            } else if (b === tentativa && !revelados.has(a)) {
+            } else if (b === vizinhoEncontrado && !revelados.has(a)) {
                 vizinhos.add(a);
                 conexoesVisiveis.push([b, a]);
             }
         });
 
-        desenharGrafo();
-        input.value = ""; // limpa o campo
+        atualizarSimulacao();
+        atualizarContador();
+        input.value = "";
+
     }
 });
+
+function mostrarTelaVitoria() {
+    const tela = document.getElementById("telaVitoria");
+    const tempo = document.getElementById("tempoFinal");
+    const som = document.getElementById("somVitoria");
+
+    const tempoDecorrido = Math.floor((Date.now() - inicioJogo) / 1000);
+    const minutos = Math.floor(tempoDecorrido / 60);
+    const segundos = tempoDecorrido % 60;
+
+    tempo.textContent = `Tempo: ${minutos}m ${segundos}s`;
+    tela.style.display = "flex";
+    som.play();
+}
+
+
+function atualizarSimulacao() {
+    if (simulation) simulation.stop();
+
+    const todosNos = new Set();
+    conexoesVisiveis.forEach(([a, b]) => {
+        todosNos.add(a);
+        todosNos.add(b);
+    });
+
+    d3Nodes = Array.from(todosNos).map(id => {
+        const existente = d3Nodes.find(n => n.id === id);
+        return existente || { id, x: canvas.width / 2, y: canvas.height / 2 };
+    });
+
+    d3Links = conexoesVisiveis.map(([source, target]) => ({ source, target }));
+
+    simulation = d3.forceSimulation(d3Nodes)
+        .force("link", d3.forceLink(d3Links).id(d => d.id).distance(120))
+        .force("charge", d3.forceManyBody().strength(-150))
+        .force("center", d3.forceCenter(canvas.width / 2, canvas.height / 2).strength(0.1))
+        .alpha(1)
+        .restart()
+        .on("tick", desenharGrafo);
+}
+
+canvas.addEventListener("mousedown", e => {
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+
+    for (const n of d3Nodes) {
+        const largura = ctx.measureText(n.id).width + 20;
+        const altura = 30;
+        const x = n.x;
+        const y = n.y;
+
+        if (
+            mouseX >= x - largura / 2 &&
+            mouseX <= x + largura / 2 &&
+            mouseY >= y - altura / 2 &&
+            mouseY <= y + altura / 2
+        ) {
+            arrastando = n;
+            offsetX = mouseX - n.x;
+            offsetY = mouseY - n.y;
+            n.fx = n.x;
+            n.fy = n.y;
+            simulation.alphaTarget(0.3).restart();
+            break;
+        }
+    }
+});
+
+canvas.addEventListener("mousemove", e => {
+    if (arrastando) {
+        arrastando.fx = e.offsetX - offsetX;
+        arrastando.fy = e.offsetY - offsetY;
+    }
+});
+
+canvas.addEventListener("mouseup", () => {
+    if (arrastando) {
+        arrastando.fx = null;
+        arrastando.fy = null;
+        simulation.alphaTarget(0);
+        arrastando = null;
+    }
+});
+
+const gameContainer = document.getElementById("game");
+
+document.getElementById("fullscreen").addEventListener("click", () => {
+    if (gameContainer.requestFullscreen) {
+        gameContainer.requestFullscreen();
+    } else if (gameContainer.webkitRequestFullscreen) {
+        gameContainer.webkitRequestFullscreen();
+    } else if (gameContainer.msRequestFullscreen) {
+        gameContainer.msRequestFullscreen();
+    }
+});
+
+
+document.addEventListener("fullscreenchange", () => {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    atualizarSimulacao();
+});
+
+function normalizar(texto) {
+    return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[-\s'’]/g, "")
+}
+
+function atualizarContador() {
+    const contador = document.getElementById("correctGuesses");
+    const total = new Set(grafoCompleto.flat()).size;
+    const reveladosCount = revelados.size;
+    if (reveladosCount === total) {
+        mostrarTelaVitoria();
+    }
+    contador.textContent = `${reveladosCount}/${total}`;
+}
+
+function ajustarCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+}
+
+window.onload = () => {
+    ajustarCanvas();
+};
+
+function corTextoContraste(hex) {
+    hex = hex.replace("#", "");
+
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    const brilho = (r * 299 + g * 587 + b * 114) / 1000;
+
+    return brilho > 128 ? "#000" : "#fff";
+}
+
+function fecharTelaVitoria() {
+    const tela = document.getElementById("telaVitoria");
+    tela.style.display = "none";
+}
+
+function ajustarCor(hex, fator) {
+    hex = hex.replace("#", "");
+    const r = Math.min(255, Math.max(0, parseInt(hex.substring(0, 2), 16) + fator));
+    const g = Math.min(255, Math.max(0, parseInt(hex.substring(2, 4), 16) + fator));
+    const b = Math.min(255, Math.max(0, parseInt(hex.substring(4, 6), 16) + fator));
+    return `rgb(${r}, ${g}, ${b})`;
+}
