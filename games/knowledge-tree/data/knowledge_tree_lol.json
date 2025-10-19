@@ -1,0 +1,30 @@
+{
+  "theme": "League of Legends",
+  "graph": [
+    ["League of Legends", "campeões"],
+    ["League of Legends", "mapas"],
+    ["League of Legends", "itens"],
+    ["campeões", "Miss Fortune"],
+    ["campeões", "Ahri"],
+    ["campeões", "Garen"],
+    ["Miss Fortune", "Águas de Sentina"],
+    ["Ahri", "Ionia"],
+    ["Garen", "Demacia"],
+    ["Águas de Sentina", "Ilhas das Sombras"],
+    ["Ilhas das Sombras", "Thresh"],
+    ["Thresh", "correntes"],
+    ["correntes", "Morgana"],
+    ["Ionia", "Irelia"],
+    ["Yasuo", "Ionia"],
+    ["campeões", "Darius"],
+    ["Noxus", "Darius"],
+    ["Demacia", "Lux"],
+    ["Lux", "Magia da Luz"],
+    ["mapas", "Summoner's Rift"],
+    ["mapas", "Howling Abyss"],
+    ["itens", "Lâmina Fantasma de Youmuu"],
+    ["itens", "Gume do Infinito"]
+  ],
+    "corPrincipal": "#C4A15B",
+    "somVitoria": "lol_win_sound.mp3"
+}
